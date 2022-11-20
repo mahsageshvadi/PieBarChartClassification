@@ -37,6 +37,11 @@ def generate_barchart():
         sx = ex + spaceWidth
 
     return image
+    
+def generate_piechart():
+    
+
+
 images = []
 for i in range(number_of_barchart_images):
 
