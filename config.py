@@ -13,4 +13,7 @@ class Config:
     #pie specific
     max_obj_num_for_pie = 12
     
+    number_of_piechart_images = 100
+    number_of_barchart_images = 100
+    
 
