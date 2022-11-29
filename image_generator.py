@@ -101,11 +101,11 @@ def generate_data():
 
 
     for i in range(config.number_of_piechart_images):
-        cv2.imwrite('/Users/mahsa/Documents/PhDlife/Courses/1st_Semester/ML/ML_Final/Pie_image{}.jpg'.format(i), piechart_images[i] * 255)
+        cv2.imwrite('/Users/mahsa/Documents/PhDlife/Courses/1st_Semester/ML/ML_Final/Data/Pie_image{}.jpg'.format(i), piechart_images[i] * 255)
     
     for i in range(config.number_of_barchart_images):
 
-        cv2.imwrite('/Users/mahsa/Documents/PhDlife/Courses/1st_Semester/ML/ML_Final/Bar_image{}.jpg'.format(i), barchart_images[i] * 255)
+        cv2.imwrite('/Users/mahsa/Documents/PhDlife/Courses/1st_Semester/ML/ML_Final/Data/Bar_image{}.jpg'.format(i), barchart_images[i] * 255)
 
 generate_data()
      
