@@ -51,6 +51,13 @@ def generate_barchart(number_of_barchart_images):
                 cv2.rectangle(image,(sx,sy),(ex,ey),0,thickness)
 
             sx = ex + spaceWidth
+        noises = np.random.uniform(0, 0.05, (size, size,3))
+        image = image + noises
+        _min = 0.0
+        _max = image.max()
+        image -= _min
+        image /= (_max - _min)
+
         barchart_images.append(image)
 
     return barchart_images
@@ -82,7 +89,14 @@ def generate_piechart(number_of_piechart_images):
                 cv2.ellipse(image, center, (r, r), 270, -_cur_start_angle, -_cur_end_angle, colors[i], -1)
                 _cur_start_angle = _cur_end_angle
 
-                    
+            noises = np.random.uniform(0, 0.05, (size, size,3))
+            image = image + noises
+
+            _min = 0.0  # because the image is not 0/1 black-and-white image, is a RGB image.
+            _max = image.max()
+            image -= _min
+            image /= (_max - _min)
+
             piechart_images.append(image)
                     
         return piechart_images
