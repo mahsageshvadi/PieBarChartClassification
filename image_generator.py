@@ -18,7 +18,9 @@ def generate_barchart(number_of_barchart_images):
     barchart_images = []
     
     for i in range(number_of_barchart_images):
+    
         image_log_for_statistics = {}
+        
         if config.number_of_channels == 3:
             colors = np.random.uniform(0.0, 0.9,size = (config.max_obj_num_for_bar,3))
 
@@ -70,13 +72,15 @@ def generate_piechart(number_of_piechart_images):
             
             number_of_pies = np.random.randint(2, config.max_obj_num_for_pie + 1)
 
-            r = np.random.randint(25,45)        # Radii of the pie. (random)
-
+            max_w_h = max(config.image_width, config.image_height)/2
+            
+            r = np.random.randint(0.1* max_w_h,max_w_h -20)
+            thickness = np.random.randint(1,3)
             
             colors = np.random.uniform(0.0, 0.9,size = (config.max_obj_num_for_pie,3))
-            center = (int(config.image_width/2),int(config.image_height/2))  #
+            center = (int(config.image_width/2),int(config.image_height/2))
             image = np.ones(shape=(config.image_width, config.image_height, 3))
-            subImages = [np.ones(shape=(config.image_width, config.image_height,3)) for i in range(6)]
+
             angles = Normalize(np.random.randint(10,60,size=(number_of_pies)))
 
             start_angle = 90 - np.random.randint(0,360*angles[0])/2.0
@@ -92,7 +96,7 @@ def generate_piechart(number_of_piechart_images):
             noises = np.random.uniform(0, 0.05, (config.image_width, config.image_height,3))
             image = image + noises
 
-            _min = 0.0  # because the image is not 0/1 black-and-white image, is a RGB image.
+            _min = 0.0
             _max = image.max()
             image -= _min
             image /= (_max - _min)
@@ -108,20 +112,20 @@ def generate_data():
     barchart_images = generate_barchart(config.number_of_barchart_images)
     
     
-    
 
 
 
 
 
     for i in range(config.number_of_piechart_images):
-        cv2.imwrite('/Users/mahsa/Documents/PhDlife/Courses/1st_Semester/ML/ML_Final/Data/Pie_image{}.jpg'.format(i), piechart_images[i] * 255)
+       cv2.imwrite('/Users/mahsa/Documents/PhDlife/Courses/1st_Semester/ML/ML_Final/Data/Pie_image{}.jpg'.format(i), piechart_images[i] *255)
     
     for i in range(config.number_of_barchart_images):
 
         cv2.imwrite('/Users/mahsa/Documents/PhDlife/Courses/1st_Semester/ML/ML_Final/Data/Bar_image{}.jpg'.format(i), barchart_images[i] * 255)
+        
+    return barchart_images, piechart_images
+
 
 generate_data()
-     
-     
 
