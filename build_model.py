@@ -90,8 +90,7 @@ def get_CatDog_model():
 
 
 
-#barcharts, piecharts = generate_data()
-
+barcharts, piecharts = get_generated_data_from_file()
 
 train_data, validation_data  = get_generated_data()
 model = get_CatDog_model()

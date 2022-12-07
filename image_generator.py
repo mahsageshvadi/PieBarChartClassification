@@ -2,10 +2,23 @@ import numpy as np
 import cv2
 import math
 
+import argparse
 
-from config import Config
+from config import Config, MakeDir, ClearDir, RemoveDir
+
+
 
 config = Config()
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--nimages", default = config.number_of_images, type = int)
+parser.add_argument("--ttv", default = 'Train')
+
+a = parser.parse_args()
+
+number_of_images = a.nimages
+number_of_piechart_images = number_of_images//2
+number_of_barchart_images = number_of_images//2
 
 
 def Normalize(arr):
@@ -43,7 +56,7 @@ def generate_barchart(number_of_barchart_images):
         
         for i in range(number_of_bars):
 
-            sy = config.image_width - 1
+            sy = config.image_width - 20
             ex = sx + barWidth
             ey = sy - height[i]
             
@@ -106,26 +119,44 @@ def generate_piechart(number_of_piechart_images):
         return piechart_images
 
 
-def generate_data():
+def generate_data(type):
 
-    piechart_images = generate_piechart(config.number_of_piechart_images)
-    barchart_images = generate_barchart(config.number_of_barchart_images)
+    piechart_images = generate_piechart(number_of_piechart_images)
+    barchart_images = generate_barchart(number_of_barchart_images)
     
+    if type == 'Train':
+        save_dir = config.train_data_dir
+    elif type == 'Test':
+        save_dir = config.test_data_dir
+    elif type == 'Validation':
     
+        save_dir = config.validation_data_dir
 
 
 
 
 
-    for i in range(config.number_of_piechart_images):
-       cv2.imwrite('/Users/mahsa/Documents/PhDlife/Courses/1st_Semester/ML/ML_Final/Data/Pie_image{}.jpg'.format(i), piechart_images[i] *255)
+    for i in range(number_of_piechart_images):
+       cv2.imwrite( save_dir + '/Pie_image{}.jpg'.format(i), piechart_images[i] *255)
     
-    for i in range(config.number_of_barchart_images):
+    for i in range(number_of_barchart_images):
 
-        cv2.imwrite('/Users/mahsa/Documents/PhDlife/Courses/1st_Semester/ML/ML_Final/Data/Bar_image{}.jpg'.format(i), barchart_images[i] * 255)
+        cv2.imwrite( save_dir+ '/Bar_image{}.jpg'.format(i), barchart_images[i] * 255)
         
     return barchart_images, piechart_images
 
 
-generate_data()
 
+
+if __name__ == '__main__':
+
+
+    MakeDir(config.base_dir)
+    if a.ttv == 'Train':
+        ClearDir(config.train_data_dir)
+    if a.ttv == 'Validation':
+        ClearDir(config.validation_data_dir)
+    if a.ttv == 'Test':
+        ClearDir(config.test_data_dir)
+    generate_data(a.ttv)
+    
