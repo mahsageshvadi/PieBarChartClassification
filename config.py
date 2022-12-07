@@ -4,10 +4,10 @@ import shutil
 class Config:
 
     
-    image_width = 300
-    image_height = 300
+    image_width = 500
+    image_height = 500
     number_of_channels = 3
-    max_obj_num_for_bar = 12
+    max_obj_num_for_bar = 6
     min_obj_num = 3
     max_thickness = 3
             

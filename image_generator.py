@@ -41,22 +41,24 @@ def generate_barchart(number_of_barchart_images):
         
         number_of_bars = np.random.randint(2, config.max_obj_num_for_bar + 1)
         thickness = np.random.randint(1, config.max_thickness)
-        height = np.random.randint(10, config.image_height - 20, size = number_of_bars)
+        padding = np.random.randint(0, 50)
+        ratio_for_padding = (config.image_width - 2* padding)/ config.image_width
+        height = np.random.randint(10, config.image_height * ratio_for_padding, size = number_of_bars)
        
         image_log_for_statistics['heigth'] = height
         image_log_for_statistics['number_of_bars'] = number_of_bars
 
         
-        barWidth = int( (config.image_width-3*(number_of_bars+1)-3)//number_of_bars * (np.random.randint(50,100)/100.0) )
+        barWidth = int( ((config.image_width-3*(number_of_bars+1)-3)//number_of_bars * (np.random.randint(50,100)/100.0))* ratio_for_padding )
         barWidth = max(barWidth, 4)
-        spaceWidth = (config.image_width-(barWidth)*number_of_bars)//(number_of_bars+1)
+        spaceWidth = int((config.image_width-(barWidth)*number_of_bars)//(number_of_bars+1) * ratio_for_padding)
 
         sx = (config.image_width - barWidth*number_of_bars - spaceWidth*(number_of_bars-1))//2
         
         
         for i in range(number_of_bars):
 
-            sy = config.image_width - 20
+            sy = int(config.image_width * ratio_for_padding)
             ex = sx + barWidth
             ey = sy - height[i]
             
