@@ -52,7 +52,7 @@ def generate_barchart(number_of_barchart_images):
         
         number_of_bars = np.random.randint(2, config.max_obj_num_for_bar + 1)
         thickness = np.random.randint(1, config.max_thickness)
-        padding = np.random.randint(0, 50)
+        padding = np.random.randint(0, 10)
         ratio_for_padding = (config.image_width - 2* padding)/ config.image_width
         height = np.random.randint(10, config.image_height * ratio_for_padding, size = number_of_bars)
        
@@ -105,7 +105,7 @@ def generate_piechart(number_of_piechart_images):
 
             max_w_h = max(config.image_width, config.image_height)/2
             
-            r = np.random.randint(0.2* max_w_h,max_w_h -20)
+            r = np.random.randint(0.1* max_w_h,max_w_h -20)
             thickness = np.random.randint(1,3)
             
             colors = np.random.uniform(0.0, 0.9,size = (config.max_obj_num_for_pie,3))
