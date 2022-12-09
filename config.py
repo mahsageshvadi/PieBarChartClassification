@@ -14,7 +14,7 @@ class Config:
     #pie specific
     max_obj_num_for_pie = 10
     
-    number_of_images = 1000
+    number_of_images = 100000
     
     #Dir
     

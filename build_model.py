@@ -9,7 +9,7 @@ import tensorflow as tf
 
 
 from keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.utils import load_img
+#from tensorflow.keras.utils import load_img
 from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau
@@ -25,8 +25,11 @@ config  = Config()
 IMAGE_SIZE=(config.image_width, config.image_height)
 IMAGE_CHANNELS= config.number_of_channels
 
+save_dir = config.train_data_dir
+
+
 def get_generated_data_from_file():
-    filenames = os.listdir("../Data/")
+    filenames = os.listdir(save_dir)
 
     categories = []
     for filename in filenames:
@@ -90,9 +93,9 @@ def get_CatDog_model():
 
 
 
-barcharts, piecharts = get_generated_data_from_file()
+train_data, validation_data = get_generated_data_from_file()
 
-train_data, validation_data  = get_generated_data()
+#train_data, validation_data  = get_generated_data()
 model = get_CatDog_model()
 
 
@@ -127,7 +130,7 @@ train_datagen = ImageDataGenerator(
 
 train_generator = train_datagen.flow_from_dataframe(
     train_data,
-    "../Data/",
+    save_dir,
     x_col='filename',
     y_col='category',
     target_size=IMAGE_SIZE,
@@ -140,7 +143,7 @@ train_generator = train_datagen.flow_from_dataframe(
 validation_datagen = ImageDataGenerator(rescale=1./255)
 validation_generator = validation_datagen.flow_from_dataframe(
     validation_data,
-    "../Data/",
+    save_dir,
     x_col='filename',
     y_col='category',
     target_size=IMAGE_SIZE,
