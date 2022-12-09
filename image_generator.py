@@ -89,9 +89,9 @@ def generate_barchart(number_of_barchart_images):
         barchart_images.append(image)
         
         if a.save:
-            np.save(save_dir+ '/Bar_image{}.npy'.format(i), image* 255)
+           # np.save(save_dir+ '/Bar_image{}.npy'.format(i), image* 255)
 
-            #cv2.imwrite( save_dir+ '/Bar_image{}.jpg'.format(i), image* 255)
+            cv2.imwrite( save_dir+ '/Bar_image{}.PNG'.format(i), image* 255)
 
         
 
@@ -137,9 +137,9 @@ def generate_piechart(number_of_piechart_images):
             piechart_images.append(image)
             if a.save:
                 
-                np.save(save_dir+ '/Par_image{}.npy'.format(i), image* 255)
+                #np.save(save_dir+ '/Par_image{}.npy'.format(i), image* 255)
 
-                #cv2.imwrite( save_dir + '/Pie_image{}.npy'.format(i), image *255)
+                cv2.imwrite( save_dir + '/Pie_image{}.PNG'.format(i), image *255)
 
                     
         return piechart_images

@@ -114,6 +114,7 @@ print(total_train)
 print(total_validate)
 batch_size=15
 
+
 train_datagen = ImageDataGenerator(
     rotation_range=0,
     rescale=1./255,
