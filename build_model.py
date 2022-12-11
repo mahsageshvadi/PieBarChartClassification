@@ -40,7 +40,7 @@ def get_generated_data_from_file():
             categories.append(1)
         else:
             categories.append(0)
-        images_data.append(np.load(filename))
+        images_data.append(np.load('./' + filename))
 
     df = pd.DataFrame({
         'data': images_data,
