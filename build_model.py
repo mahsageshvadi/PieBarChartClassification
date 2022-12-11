@@ -32,15 +32,18 @@ def get_generated_data_from_file():
     filenames = os.listdir(save_dir)
 
     categories = []
+    images_data = []
+
     for filename in filenames:
         category = filename.split('_')[0]
         if category == 'Bar':
             categories.append(1)
         else:
             categories.append(0)
+        images_data.append(np.load(filename))
 
     df = pd.DataFrame({
-        'filename': filenames,
+        'data': images_data,
         'category': categories
     })
     
@@ -96,9 +99,11 @@ def get_CatDog_model():
 train_data, validation_data = get_generated_data_from_file()
 
 #train_data, validation_data  = get_generated_data()
-model = get_CatDog_model()
+#model = get_CatDog_model()
 
+print(train_data.head())
 
+''''
 
 earlystop = EarlyStopping(patience=10)
 
@@ -181,3 +186,6 @@ ax2.set_xticks(np.arange(1, epochs, 1))
 legend = plt.legend(loc='best', shadow=True)
 plt.tight_layout()
 plt.show()
+
+
+''''
