@@ -64,17 +64,17 @@ def get_generated_data_from_file():
 
 def get_CatDog_model():
 
-model = Sequential()
-model.add(Conv2D(filters=32, kernel_size=(5,5), padding='same', activation='relu', input_shape=(100, 100, 3)))
-model.add(MaxPool2D(strides=2))
-model.add(Conv2D(filters=48, kernel_size=(5,5), padding='valid', activation='relu'))
-model.add(MaxPool2D(strides=2))
-model.add(Flatten())
-model.add(Dense(256, activation='relu'))
-model.add(Dense(84, activation='relu'))
-model.add(Dense(10, activation='softmax'))
-model.build()
-model.summary()
+    model = Sequential()
+    model.add(Conv2D(filters=32, kernel_size=(5,5), padding='same', activation='relu', input_shape=(100, 100, 3)))
+    model.add(MaxPool2D(strides=2))
+    model.add(Conv2D(filters=48, kernel_size=(5,5), padding='valid', activation='relu'))
+    model.add(MaxPool2D(strides=2))
+    model.add(Flatten())
+    model.add(Dense(256, activation='relu'))
+    model.add(Dense(84, activation='relu'))
+    model.add(Dense(10, activation='softmax'))
+    model.build()
+    model.summary()
 
 
     return model
