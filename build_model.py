@@ -49,7 +49,7 @@ def get_generated_data_from_file():
     
     df = df.sample(frac = 1)
     
-    df["category"] = df["category"].replace({0: 'Pie', 1: 'Bar'})
+    df["category"] = df["category"].replace({'Pie': 0, 'Bar': 1})
 
     train_df, validate_df = train_test_split(df, test_size=0.20, random_state=42)
     train_df = train_df.reset_index(drop=True)
@@ -64,32 +64,18 @@ def get_generated_data_from_file():
 
 def get_CatDog_model():
 
-    model = Sequential()
+model = Sequential()
+model.add(Conv2D(filters=32, kernel_size=(5,5), padding='same', activation='relu', input_shape=(100, 100, 3)))
+model.add(MaxPool2D(strides=2))
+model.add(Conv2D(filters=48, kernel_size=(5,5), padding='valid', activation='relu'))
+model.add(MaxPool2D(strides=2))
+model.add(Flatten())
+model.add(Dense(256, activation='relu'))
+model.add(Dense(84, activation='relu'))
+model.add(Dense(10, activation='softmax'))
+model.build()
+model.summary()
 
-    model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(config.image_width, config.image_height, config.number_of_channels)))
-    model.add(BatchNormalization())
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
-
-    model.add(Conv2D(64, (3, 3), activation='relu'))
-    model.add(BatchNormalization())
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
-
-    model.add(Conv2D(128, (3, 3), activation='relu'))
-    model.add(BatchNormalization())
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.25))
-
-    model.add(Flatten())
-    model.add(Dense(512, activation='relu'))
-    model.add(BatchNormalization())
-    model.add(Dropout(0.5))
-    model.add(Dense(2, activation='softmax')) # 2 because we have cat and dog classes
-
-    model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
-
-    model.summary()
 
     return model
 
@@ -98,7 +84,19 @@ def get_CatDog_model():
 
 train_data, validation_data = get_generated_data_from_file()
 
-#train_data, validation_data  = get_generated_data()
-#model = get_CatDog_model()
+Y_train = train_data.iloc[:, 1:]
+X_train = train_data.iloc[:, 0]
 
-print(train_data.head())
+X_train = np.array(X_train)
+Y_train = np.array(Y_train)
+# Normalize inputs
+X_train = X_train / 255.0
+
+model.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
+model.fit(train_data ,Y_train, steps_per_epoch = 10, epochs = 42)
+
+
+
+
+
+
