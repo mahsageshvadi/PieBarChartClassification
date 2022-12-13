@@ -1,20 +1,19 @@
 # prepare data
 
-import matplotlib.pyplot as plt
-import random
 import os
-import numpy as np
 import pandas as pd
-import tensorflow as tf
-
-
-from keras.preprocessing.image import ImageDataGenerator
-#from tensorflow.keras.utils import load_img
-from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
-from keras.callbacks import EarlyStopping, ReduceLROnPlateau
+from keras.preprocessing.image import ImageDataGenerator
+import numpy as np
+import cv2
+import math
+import argparse
+from keras.optimizers import Adam
+
+
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dense, Activation, BatchNormalization
+
 
 from config import Config
 from image_generator import generate_data
@@ -61,20 +60,35 @@ def get_generated_data_from_file():
     
 
 
-def get_Lenet():
+def get_model():
+
 
     model = Sequential()
-    model.add(Conv2D(filters=32, kernel_size=(5,5), padding='same', activation='relu', input_shape=(config.image_width, config.image_height, config.number_of_channels)))
-    model.add(MaxPool2D(strides=2))
-    model.add(Conv2D(filters=48, kernel_size=(5,5), padding='valid', activation='relu'))
-    model.add(MaxPool2D(strides=2))
-    model.add(Flatten())
-    model.add(Dense(256, activation='relu'))
-    model.add(Dense(84, activation='relu'))
-    model.add(Dense(10, activation='softmax'))
-    model.build()
-    model.summary()
 
+    model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(image_width, image_height, number_of_channels)))
+    model.add(BatchNormalization())
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
+
+    model.add(Conv2D(64, (3, 3), activation='relu'))
+    model.add(BatchNormalization())
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
+
+    model.add(Conv2D(128, (3, 3), activation='relu'))
+    model.add(BatchNormalization())
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+    model.add(Dropout(0.25))
+
+    model.add(Flatten())
+    model.add(Dense(512, activation='relu'))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.5))
+    model.add(Dense(2, activation='softmax')) # 2 because we have bar and pie chart classes 
+
+    #model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+
+    model.summary()
 
     return model
 
@@ -82,7 +96,7 @@ def get_Lenet():
 
 
 train_data, validation_data = get_generated_data_from_file()
-model = get_Lenet()
+model = get_model()
 
 train_data["category"] = train_data["category"].replace({0: 'Pie', 1: 'Bar'}) 
 validation_data["category"] = train_data["category"].replace({0: 'Pie', 1: 'Bar'}) 
