@@ -30,7 +30,6 @@ save_dir = config.train_data_dir
 
 def get_generated_data_from_file():
     filenames = os.listdir(save_dir)
-
     categories = []
     #images_data = []
 
@@ -84,19 +83,57 @@ def get_Lenet():
 
 train_data, validation_data = get_generated_data_from_file()
 model = get_Lenet()
-Y_train = train_data.iloc[:, 1:]
-X_train = train_data.iloc[:, 0]
 
-X_train = np.array(X_train)
-Y_train = np.array(Y_train)
-# Normalize inputs
-X_train = X_train / 255.0
+train_data["category"] = train_data["category"].replace({0: 'Pie', 1: 'Bar'}) 
+validation_data["category"] = train_data["category"].replace({0: 'Pie', 1: 'Bar'}) 
 
-model.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
+train_datagen = ImageDataGenerator(rescale = 1./255)
+
+total_train = train_data.shape[0]
+total_validate = validation_data.shape[0]
+batch_size=15
+
+train_generator = train_datagen.flow_from_dataframe(
+    train_data, 
+    save_dir, 
+    x_col='data',
+    y_col='category',
+    target_size=IMAGE_SIZE,
+    class_mode='categorical',
+    batch_size=batch_size
+)
+
+
+validation_datagen = ImageDataGenerator(rescale = 1./255)
+validation_generator = validation_datagen.flow_from_dataframe(
+    validation_data, 
+    save_dir, 
+    x_col='data',
+    y_col='category',
+    target_size=IMAGE_SIZE,
+    class_mode='categorical',
+    batch_size=batch_size
+)
+
+
+lr = 0.1
+m_optimizer = Adam(lr)
+
+model.compile(optimizer = m_optimizer, loss = 'categorical_crossentropy', metrics = ['accuracy'])
+
+
+#model.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
 model.fit(train_data ,Y_train, steps_per_epoch = 10, epochs = 42)
 
 
-
+epochs= 50
+history = model.fit(
+    train_generator, 
+    epochs=epochs,
+    validation_data=validation_generator,
+    validation_steps=total_validate//batch_size,
+    steps_per_epoch=total_train//batch_size,
+)
 
 
 
