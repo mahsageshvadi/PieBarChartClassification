@@ -83,7 +83,7 @@ def get_CatDog_model():
 
 
 train_data, validation_data = get_generated_data_from_file()
-
+model = get_CatDog_model()
 Y_train = train_data.iloc[:, 1:]
 X_train = train_data.iloc[:, 0]
 
