@@ -32,7 +32,7 @@ def get_generated_data_from_file():
     filenames = os.listdir(save_dir)
 
     categories = []
-    images_data = []
+    #images_data = []
 
     for filename in filenames:
         category = filename.split('_')[0]
@@ -40,10 +40,10 @@ def get_generated_data_from_file():
             categories.append(1)
         else:
             categories.append(0)
-        images_data.append(np.load(save_dir + '/'+ filename))
+       # images_data.append(np.load(save_dir + '/'+ filename))
 
     df = pd.DataFrame({
-        'data': images_data,
+        'data': filenames,
         'category': categories
     })
     
@@ -62,10 +62,10 @@ def get_generated_data_from_file():
     
 
 
-def get_CatDog_model():
+def get_Lenet():
 
     model = Sequential()
-    model.add(Conv2D(filters=32, kernel_size=(5,5), padding='same', activation='relu', input_shape=(100, 100, 3)))
+    model.add(Conv2D(filters=32, kernel_size=(5,5), padding='same', activation='relu', input_shape=(config.image_width, config.image_height, config.number_of_channels)))
     model.add(MaxPool2D(strides=2))
     model.add(Conv2D(filters=48, kernel_size=(5,5), padding='valid', activation='relu'))
     model.add(MaxPool2D(strides=2))
@@ -83,7 +83,7 @@ def get_CatDog_model():
 
 
 train_data, validation_data = get_generated_data_from_file()
-model = get_CatDog_model()
+model = get_Lenet()
 Y_train = train_data.iloc[:, 1:]
 X_train = train_data.iloc[:, 0]
 
