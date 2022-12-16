@@ -1,22 +1,41 @@
-# prepare data
-
 import os
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from keras.preprocessing.image import ImageDataGenerator
 import numpy as np
-import cv2
-import math
-import argparse
-from keras.optimizers import Adam
+from PIL import Image
 
+import seaborn as sns
+import matplotlib
+import matplotlib.pyplot as plt
 
-from keras.models import Sequential
+from keras.preprocessing.image import (ImageDataGenerator,
+                                       img_to_array,
+                                       array_to_img,
+                                       load_img)
+
+from sklearn.model_selection import train_test_split
+
+from sklearn.metrics import (confusion_matrix,
+                             classification_report,
+                             accuracy_score,
+                             f1_score,
+                             roc_auc_score)
+
+import tensorflow as tf
+from keras.models import Model,Sequential
+from keras.layers import Conv2D, MaxPooling2D, Dropout, Dense,Flatten
+
+from keras import optimizers
+from keras import regularizers
+from keras.callbacks import EarlyStopping,LearningRateScheduler
 from keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dense, Activation, BatchNormalization
 
 
-from config import Config
-from image_generator import generate_data
+from keras import backend as K
+K.clear_session()
+
+from sklearn.utils import shuffle
+
+
 
 
 config  = Config()
@@ -24,130 +43,108 @@ config  = Config()
 IMAGE_SIZE=(config.image_width, config.image_height)
 IMAGE_CHANNELS= config.number_of_channels
 
-save_dir = config.train_data_dir
+train_dir = config.train_data_dir
+test_dir = config.test_data_dir
 
 
-def get_generated_data_from_file():
-    filenames = os.listdir(save_dir)
-    categories = []
-    #images_data = []
+def label(path):
+    return [file.split('_')[0] for file in os.listdir(path)]
 
-    for filename in filenames:
-        category = filename.split('_')[0]
-        if category == 'Bar':
-            categories.append(1)
-        else:
-            categories.append(0)
-       # images_data.append(np.load(save_dir + '/'+ filename))
-
-    df = pd.DataFrame({
-        'data': filenames,
-        'category': categories
-    })
+def filename(path):
+    return [file for file in os.listdir(path)]
     
-    df = df.sample(frac = 1)
-    
-    df["category"] = df["category"].replace({'Pie': 0, 'Bar': 1})
-
-    train_df, validate_df = train_test_split(df, test_size=0.20, random_state=42)
-    train_df = train_df.reset_index(drop=True)
-    validate_df = validate_df.reset_index(drop=True)
-
-    return train_df, validate_df
     
 
+def get_train_validation_test():
+
+    train_names = filename(train_dir)
+    test_names = filename(test_dir)
+    train_class = label(train_dir)
+    
+    test_class = label(test_dir)
+    test_df = pd.DataFrame({'filename': test_names , 'category': test_class})
+    
+    train_df = pd.DataFrame({ 'filename': train_names, 'category': train_class})
+    
+    valid_df, train_df = train_test_split(train_df, test_size = (6/8))
+
+    return train_df, valid_df, test_df
 
     
-
 
 def get_model():
 
-
     model = Sequential()
 
-    model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(image_width, image_height, number_of_channels)))
-    model.add(BatchNormalization())
+    model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(config.image_width, config.image_height, config.number_of_channels
+                                                                )))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
 
     model.add(Conv2D(64, (3, 3), activation='relu'))
-    model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
 
     model.add(Conv2D(128, (3, 3), activation='relu'))
-    model.add(BatchNormalization())
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.25))
 
     model.add(Flatten())
     model.add(Dense(512, activation='relu'))
-    model.add(BatchNormalization())
     model.add(Dropout(0.5))
-    model.add(Dense(2, activation='softmax')) # 2 because we have bar and pie chart classes 
-
-    #model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
-
-    model.summary()
-
+    model.add(Dense(2, activation='softmax'))
+    
+    
     return model
 
 
+def train_model(model, train_df, valid_df, epochs, learning_rate, batch_size)
+    
+    train_map = ImageDataGenerator()
+    valid_map = ImageDataGenerator()
+    
+    
+    train_data = train_map.flow_from_dataframe(
+            train_df,train_dir,
+            x_col = 'filename',
+            y_col = 'category',
+            target_size = IMAGE_SIZE,
+            batch_size = batch_size,
+            class_mode = 'categorical')
+
+    valid_data = valid_map.flow_from_dataframe(
+             valid_df, train_dir,
+             x_col = 'filename',
+             y_col = 'category',
+             target_size = IMAGE_SIZE,
+             batch_size = batch_size,
+             class_mode = 'categorical')
+             
+    
+    loss = 'categorical_crossentropy'
+    opt = tf.keras.optimizers.Adam(learning_rate= learning_rate)
+    metrics = ['accuracy']
+
+    train_images = train_df.shape[0]
+    valid_images = valid_df.shape[0]
+    model.compile(loss = loss, optimizer = opt, metrics = metrics)
 
 
-train_data, validation_data = get_generated_data_from_file()
+    history = model.fit(train_data, epochs = epochs,
+                              validation_data = valid_data,
+                              validation_steps= valid_images//batch_size,
+                              steps_per_epoch= train_images//batch_size)
+                              
+    return history
+    
+
+
+learning_rate = 0.001
+batch_size = 132
+epochs = 50
+
+train_df, valid_df, test_df = get_train_validation_test()
+
 model = get_model()
 
-train_data["category"] = train_data["category"].replace({0: 'Pie', 1: 'Bar'}) 
-validation_data["category"] = train_data["category"].replace({0: 'Pie', 1: 'Bar'}) 
-
-train_datagen = ImageDataGenerator(rescale = 1./255)
-
-total_train = train_data.shape[0]
-total_validate = validation_data.shape[0]
-batch_size=15
-
-train_generator = train_datagen.flow_from_dataframe(
-    train_data, 
-    save_dir, 
-    x_col='data',
-    y_col='category',
-    target_size=IMAGE_SIZE,
-    class_mode='categorical',
-    batch_size=batch_size
-)
-
-
-validation_datagen = ImageDataGenerator(rescale = 1./255)
-validation_generator = validation_datagen.flow_from_dataframe(
-    validation_data, 
-    save_dir, 
-    x_col='data',
-    y_col='category',
-    target_size=IMAGE_SIZE,
-    class_mode='categorical',
-    batch_size=batch_size
-)
-
-
-lr = 0.1
-m_optimizer = Adam(lr)
-
-model.compile(optimizer = m_optimizer, loss = 'categorical_crossentropy', metrics = ['accuracy'])
-
-
-#model.compile(optimizer = 'adam', loss = 'categorical_crossentropy', metrics = ['accuracy'])
-model.fit(train_data ,Y_train, steps_per_epoch = 10, epochs = 42)
-
-
-epochs= 50
-history = model.fit(
-    train_generator, 
-    epochs=epochs,
-    validation_data=validation_generator,
-    validation_steps=total_validate//batch_size,
-    steps_per_epoch=total_train//batch_size,
-)
-
-
-
+history = train_model(model, train_df, valid_df, epochs, learning_rate, batch_size)
