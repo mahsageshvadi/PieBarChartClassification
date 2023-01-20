@@ -5,4 +5,8 @@ __pycache__
 
 Experiment_with_large_data.ipynb
 
+.ipynb_checkpoints
+
+.DS_Store
+
 Second_Experiment.ipynb
